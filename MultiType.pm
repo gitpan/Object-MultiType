@@ -13,7 +13,7 @@
 package Object::MultiType;
 use 5.006 ;
 use strict qw(vars) ;
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 no warnings ;
 
@@ -294,7 +294,7 @@ sub new {
     $this = {
     s => \'' ,
     a => [] ,
-    h => [] ,
+    h => {} ,
     c => sub{} ,  
     g => \*NULL ,
     } ;
