@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::MultiType.
 
+0.04  2004-01-16
+    - Tied hashes will alwasy return TRUE for: if( %hash ) now.
+
 0.03  Oct 10 2003
     - Fixed bug with overload ++ and --.
 

@@ -1,6 +1,6 @@
-#################################
-# Object/MultiType version 0.03 #
-#################################
+#####################
+# Object::MultiType #
+#####################
 
 Perl Objects as Hash, Array and Scalar at the same time.
 

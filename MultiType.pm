@@ -13,7 +13,7 @@
 package Object::MultiType;
 use 5.006 ;
 use strict qw(vars) ;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 no warnings ;
 
@@ -74,7 +74,7 @@ sub new {
   elsif ( $args{tiehash} ) {
     if ( $args{tieonuse} ) { $saver->{TIEONUSE}{h} = $args{tiehash} ;}
     else {
-      my %hash ; tie(%hash,$args{tiehash},$$this) ;
+      my %hash = 1 ; tie(%hash,$args{tiehash},$$this) ;
       $saver->set_hash(\%hash) ;    
     }
   }
@@ -208,7 +208,7 @@ sub _OVER_get_hash {
   my $this = shift ;
   
   if ( $$this->{TIEONUSE}{h} ) {
-    my %hash ; tie(%hash, $$this->{TIEONUSE}{h} ,$$this) ;
+    my %hash = 1 ; tie(%hash, $$this->{TIEONUSE}{h} ,$$this) ;
     $$this->set_hash(\%hash) ;
     $$this->{TIEONUSE}{h} = undef ;
   }
