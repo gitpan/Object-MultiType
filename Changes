@@ -1,7 +1,10 @@
 Revision history for Perl extension Object::MultiType.
 
+0.02  Sat Jun 3 2:54:05 2003
+    - Added support for booleans.        
+
 0.01  Sat May 10 00:37:05 2003
-	- First release!
-	- original version; created by h2xs 1.21 with options
-		-X -A -n Object::MultiType
+    - First release!
+    - original version; created by h2xs 1.21 with options
+        -X -A -n Object::MultiType
 

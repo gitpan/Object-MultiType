@@ -13,9 +13,12 @@
 package Object::MultiType;
 use 5.006 ;
 use strict qw(vars) ;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
+
+no warnings ;
 
  use overload (
+ 'bool' => '_OVER_bool' ,
  '""' => '_OVER_string' ,
  '='  => '_OVER_copy' ,
  '0+'  => '_OVER_copy' , 
@@ -40,9 +43,17 @@ sub new {
   my $this = \$saver ;
   bless($this,$class) ;
   
-  if (!defined $args{scalarsub} && !defined $args{scalarcode} ) { $args{scalarsub} = $args{scalarcode} ;}
+  if (!defined $args{boolsub} && defined $args{boolcode} ) { $args{boolsub} = $args{boolcode} ;}
 
-  if ( $args{scalar} ) { $saver->set_scalar($args{scalar}) ;}
+  if ( exists $args{bool} ) { $saver->set_bool($args{bool}) ;}
+  elsif ( $args{boolsub} ) {
+    my $sub = $args{boolsub} ;
+    $saver->set_bool(\$sub) ;
+  }
+  
+  if (!defined $args{scalarsub} && defined $args{scalarcode} ) { $args{scalarsub} = $args{scalarcode} ;}
+
+  if ( defined $args{scalar} ) { $saver->set_scalar($args{scalar}) ;}
   elsif ( $args{scalarsub} ) {
     my $sub = $args{scalarsub} ;
     $saver->set_scalar(\$sub) ;
@@ -78,6 +89,29 @@ sub new {
   if ( ref $args{glob} eq 'GLOB' ) { $saver->set_glob( $args{glob} ) ;}
   
   return( $this ) ;
+}
+
+##############
+# _OVER_BOOL #
+##############
+
+sub _OVER_bool {
+  my $this = shift ;
+
+  if ( !exists $$this->{b} ) {
+    return $this->_OVER_string ;
+  }
+  
+  my $bool = $$this->bool ;
+  
+  if (ref($bool) && ref($$bool) eq 'CODE') {
+    my $sub = $$bool ;
+    return &$sub($this) ;
+  }
+  
+  if (ref($bool) eq 'SCALAR') { return( $$bool ) ;}
+  
+  return( $bool ) ;
 }
 
 ##########
@@ -204,7 +238,7 @@ sub DESTROY {
 
 package Object::MultiType::Saver ;
 
-use strict vars ;
+use strict qw(vars) ;
 
 sub is_saver { 1 ;}
 
@@ -230,11 +264,14 @@ sub new {
   return( $this ) ;
 }
 
+sub bool   { return( $_[0]->{b} ) ;} 
 sub scalar { return( $_[0]->{s} ) ;} 
 sub array  { return( $_[0]->{a} ) ;}
 sub hash   { return( $_[0]->{h} ) ;}
 sub code   { return( $_[0]->{c} ) ;}
 sub glob   { return( $_[0]->{g} ) ;}
+
+sub set_bool  { $_[0]->{b} = $_[1] ;}
 
 sub set_scalar {
   if ($#_ == 0) { $_[0]->{s} = undef ;}
@@ -249,6 +286,7 @@ sub set_glob   { $_[0]->{g} = $_[1] ;}
 
 sub clean {
   my $this = shift ;
+  $this->set_bool() ;
   $this->set_scalar() ;
   $this->set_array() ;
   $this->set_hash() ;
@@ -328,11 +366,19 @@ B<Arguments>:
 
 =over 10
 
+=item bool
+
+The I<boolean> reference. Default: undef
+
+=item boolcode|boolsub
+
+Set the sub/function (CODE reference) that will return/generate the I<boolean> value.
+
 =item scalar
 
 The SCALAR reference. If not sent a null SCALAR will be created.
 
-=item scalarcode
+=item scalarcode|scalarsub
 
 Set the sub/function (CODE reference) that will return/generate the scalar data of the object.
 
@@ -490,6 +536,7 @@ To access directly the reference of the different data types (SCALAR, ARRAY, HAS
 
 Setting the data:
 
+  $saver->set_bool( 1 ) ;
   $saver->set_scalar( 'xyz' ) ;
   $saver->set_array( [qw(x y z)] ) ;
   $saver->set_hash( {X => 1} ) ;
@@ -624,6 +671,10 @@ Return the CODE/sub reference inside the Saver.
 =head2 glob
 
 Return the GLOB/HANDLE reference inside the Saver.
+
+=head2 set_bool
+
+Set the boolean reference inside the Saver.
 
 =head2 set_scalar
 

@@ -1,7 +1,7 @@
 #########################
 
 use Test;
-BEGIN { plan tests => 11 } ;
+BEGIN { plan tests => 21 } ;
 use Object::MultiType ;
 
 #########################
@@ -75,6 +75,48 @@ use Object::MultiType ;
   print $obj "GLOB ref OK!\n" ;
 
   ok($data,"GLOB ref OK!\n");
+  
+}
+#########################
+{
+  
+  my $obj = Object::MultiType->new( bool => 1 ) ;
+  if ( $obj ) { ok(1,1) ;}
+  else { ok(1,0) ;}
+  
+  my $obj = Object::MultiType->new( bool => 0 ) ;
+  if ( !$obj ) { ok(1) ;}
+  else { ok(0,1) ;}
+
+  my $bool_ref = 1 ;  
+  my $obj = Object::MultiType->new( bool => \$bool_ref ) ;
+  if ( $obj ) { ok(1) ;}
+  else { ok(0,1) ;}
+    
+  my $bool_ref = 1 ;
+  my $c ;
+  
+  my $obj = Object::MultiType->new( boolsub => sub { $c++ ; return $bool_ref } ) ;
+  if ( $obj ) { ok(1) ;}
+  else { ok(1,0) ;}
+  
+  $bool_ref = 0 ;
+  if ( !$obj ) { ok(1) ;}
+  else { ok(0,1) ;}
+  
+  ok($c,2) ;
+  
+  my $obj = Object::MultiType->new( scalar => 'a' ) ;
+  if ( $obj ) { ok(1,1) ;}
+  else { ok(1,0) ;}
+
+  ok($obj,'a') ;
+  
+  my $obj = Object::MultiType->new( scalar => '0' ) ;
+  if ( !$obj ) { ok(1) ;}
+  else { ok(0,1) ;}
+  
+  ok($obj,0) ;
   
 }
 #########################
