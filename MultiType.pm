@@ -13,7 +13,7 @@
 package Object::MultiType;
 use 5.006 ;
 use strict qw(vars) ;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 no warnings ;
 
@@ -21,7 +21,9 @@ no warnings ;
  'bool' => '_OVER_bool' ,
  '""' => '_OVER_string' ,
  '='  => '_OVER_copy' ,
- '0+'  => '_OVER_copy' , 
+ '+'  => '_OVER_inc' ,
+ '-'  => '_OVER_deinc' ,
+ '0+'  => '_OVER_copy' ,
  '@{}'  => '_OVER_get_array' ,
  '%{}'  => '_OVER_get_hash' ,
  '&{}'  => '_OVER_get_code' ,
@@ -129,9 +131,47 @@ sub _OVER_string {
   else { return( $$scalar ) ;}
 }
 
-########
-# COPY #
-########
+#############
+# _OVER_INC #
+#############
+
+sub _OVER_inc {
+  my $this = shift ;
+  my $scalar = $$this->scalar ;
+  
+  my $n ;
+  if (ref($$scalar) eq 'CODE') {
+    my $sub = $$scalar ;
+    $n = &$sub($this) ;
+  }
+  else { $n = substr($$scalar , 0 ) ;}
+  
+  $n += $_[0] ;
+  return $n ;
+}
+
+###############
+# _OVER_DEINC #
+###############
+
+sub _OVER_deinc {
+  my $this = shift ;
+  my $scalar = $$this->scalar ;
+  
+  my $n ;
+  if (ref($$scalar) eq 'CODE') {
+    my $sub = $$scalar ;
+    $n = &$sub($this) ;
+  }
+  else { $n = substr($$scalar , 0 ) ;}
+  
+  $n -= $_[0] ;
+  return $n ;
+}
+
+##############
+# _OVER_COPY #
+##############
 
 sub _OVER_copy {
   my $this = shift ;
@@ -651,6 +691,10 @@ B<METHODS:>
 =head2 is_saver
 
 Return 1. Good to see if what you have is the Saver or the MultiType object.
+
+=head2 bool
+
+Return the BOOL reference inside the Saver.
 
 =head2 scalar
 

@@ -120,6 +120,31 @@ use Object::MultiType ;
   
 }
 #########################
+{
+
+  my $scalar = 100 ;
+
+  my $obj = Object::MultiType->new( scalar => \$scalar ) ;
+  my $n = ++$obj ;
+  ok($n , 101) ;
+  
+  my $obj = Object::MultiType->new( scalar => \$scalar ) ;
+  my $n = --$obj ;
+  ok($n , 99) ;
+  
+  my $obj = Object::MultiType->new( scalar => \$scalar ) ;
+  my $n = $obj++ ;
+  ok($n , 100) ;
+  ok($obj , 101) ;
+  
+  my $obj = Object::MultiType->new( scalar => \$scalar ) ;
+  my $n = $obj-- ;
+  ok($n , 100) ;
+  ok($obj , 99) ;
+  
+}
+
+#########################
 
 
 package TestTieHandle ;
